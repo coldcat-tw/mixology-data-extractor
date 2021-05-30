@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -55,11 +56,11 @@ public class App {
 
 		logger.info(recipeListLinks.toString());
 	}
-	
+
 	private void collectRecipeLinks(String targetPath) throws IOException {
 		Injector injector = Guice.createInjector(new ConfigurationModule("mixology-data-extractor"));
 		RecipeUrlCollector recipeUrlCollector = injector.getInstance(RecipeUrlCollector.class);
-		
+
 		String recipeListLinksFilePath = targetPath + "/output/recipeListLinks.txt";
 		Path path = Paths.get(recipeListLinksFilePath);
 		boolean exists = Files.exists(path);
@@ -76,15 +77,15 @@ public class App {
 			logger.info(targetPath);
 			String outputFilePath = targetPath + "/output/recipeLinks.txt";
 			outputResult(outputFilePath, recipeLinks);
-			
+
 			logger.info(recipeLinks.toString());
 		}
 	}
-	
+
 	private void collectRecipeData(String targetPath) throws IOException {
 		Injector injector = Guice.createInjector(new ConfigurationModule("mixology-data-extractor"));
 		RecipeDataCollector recipeDataCollector = injector.getInstance(RecipeDataCollector.class);
-		
+
 		String recipeLinksFilePath = targetPath + "/output/recipeLinks.txt";
 		Path path = Paths.get(recipeLinksFilePath);
 		boolean exists = Files.exists(path);
@@ -121,11 +122,11 @@ public class App {
 		}
 		FileUtils.writeStringToFile(f, sb.toString().trim(), StandardCharsets.UTF_8);
 	}
-	
+
 	private int randomSleep() {
 		return randomSleep(6, 2);
 	}
-	
+
 	private int randomSleep(int upper, int lower) {
 		Random random = new Random();
 		int randomNumber = random.nextInt(upper - lower) + lower;
@@ -139,23 +140,29 @@ public class App {
 		return randomNumber;
 	}
 
+	private static Option helpOpt = Option.builder("h").longOpt("help").desc("help").build();
+	private static Option cmdOpt = Option.builder("c").longOpt("command").hasArgs().argName("COMMAND> <OUTPUT_PATH").optionalArg(true).required()
+			.desc("Commands of Mixology data extractor.\nAvailable commands are\nget_recipe_list_link\nget_recipe_link\nget_recipe_data").build();
+
 	public static void main(String[] args) {
 
 		App app = new App();
 		try {
-			Option option = Option.builder("c").longOpt("command").hasArgs().required().desc("Admin command to execute")
-					.build();
-			Options options = new Options();
-			options.addOption(option);
-			CommandLineParser parser = new DefaultParser();
-			CommandLine cmd = parser.parse(options, args);
-			String[] commandValues = cmd.getOptionValues("c");
-			String cmdName = commandValues[0];
-			String targetPath = commandValues[1];
-			logger.info("cmd;" +cmdName);
-			logger.info(targetPath);
+			CommandLine helpCmd = getHelpCommandLine(args);
+			if (helpCmd != null) {
+				printHelp();
+			} else {
+				Options options = new Options();
+				options.addOption(cmdOpt);
+				CommandLineParser parser = new DefaultParser();
+				CommandLine cmd = parser.parse(options, args);
+				String[] commandValues = cmd.getOptionValues("c");
+				String cmdName = commandValues[0];
+				String targetPath = commandValues[1];
+				logger.info("cmd;" + cmdName);
+				logger.info(targetPath);
 
-			switch (cmdName) {
+				switch (cmdName) {
 				case "get_recipe_list_link":
 					app.collectRecipeListLinks(targetPath);
 					break;
@@ -167,6 +174,7 @@ public class App {
 					break;
 				default:
 					break;
+				}
 			}
 
 		} catch (IOException e) {
@@ -174,7 +182,31 @@ public class App {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			logger.error(e.toString());
+			printHelp();
+			e.printStackTrace();
+
 		}
 
+	}
+
+	private static void printHelp() {
+		Options options = new Options();
+		options.addOption(cmdOpt);
+		options.addOption(helpOpt);
+
+		HelpFormatter hFormatter = new HelpFormatter();
+		hFormatter.printHelp(200, "app", "Mixology recipe data extractor commands", options, "", true);
+	}
+
+	private static CommandLine getHelpCommandLine(String[] args) {
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmdLine;
+		try {
+			cmdLine = parser.parse(new Options().addOption(helpOpt), args);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			cmdLine = null;
+		}
+		return cmdLine;
 	}
 }
