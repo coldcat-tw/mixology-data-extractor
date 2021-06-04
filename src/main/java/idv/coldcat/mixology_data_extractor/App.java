@@ -50,7 +50,6 @@ public class App {
 				hasNext = false;
 			}
 		} while (hasNext);
-		logger.info(outputPath);
 		String outputFilePath = outputPath + "/output/recipeListLinks.txt";
 		outputResult(outputFilePath, recipeListLinks);
 
@@ -74,11 +73,8 @@ public class App {
 				recipeLinks.addAll(result);
 				randomSleep();
 			}
-			logger.info(targetPath);
 			String outputFilePath = targetPath + "/output/recipeLinks.txt";
 			outputResult(outputFilePath, recipeLinks);
-
-			logger.info(recipeLinks.toString());
 		}
 	}
 
@@ -99,18 +95,14 @@ public class App {
 				recipeDataList.add(data);
 				randomSleep();
 			}
-			logger.info(targetPath);
 			Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
 			for (RecipeData data : recipeDataList) {
 				String s = gson.toJson(data);
-				logger.info(s);
 				String outputFilePath = targetPath + "/output/" + data.getId() + ".json";
 				List<String> list = new ArrayList<>();
 				list.add(s);
 				outputResult(outputFilePath, list);
 			}
-
-			logger.info(recipeDataList.toString());
 		}
 	}
 
@@ -159,8 +151,6 @@ public class App {
 				String[] commandValues = cmd.getOptionValues("c");
 				String cmdName = commandValues[0];
 				String targetPath = commandValues[1];
-				logger.info("cmd;" + cmdName);
-				logger.info(targetPath);
 
 				switch (cmdName) {
 				case "get_recipe_list_link":
@@ -179,12 +169,9 @@ public class App {
 
 		} catch (IOException e) {
 			logger.error(e.getMessage());
-			e.printStackTrace();
 		} catch (ParseException e) {
 			logger.error(e.toString());
 			printHelp();
-			e.printStackTrace();
-
 		}
 
 	}
@@ -204,7 +191,6 @@ public class App {
 		try {
 			cmdLine = parser.parse(new Options().addOption(helpOpt), args);
 		} catch (ParseException e) {
-			e.printStackTrace();
 			cmdLine = null;
 		}
 		return cmdLine;

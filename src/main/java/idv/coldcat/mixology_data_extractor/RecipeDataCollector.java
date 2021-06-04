@@ -29,6 +29,8 @@ public class RecipeDataCollector {
 		processEngName(doc, data);
 		processIntroduction(doc, data);
 		processIngredientsAndSteps(doc, data);
+		logger.info("Got recipe data;" + data.getId());
+
 		return data;
 	}
 

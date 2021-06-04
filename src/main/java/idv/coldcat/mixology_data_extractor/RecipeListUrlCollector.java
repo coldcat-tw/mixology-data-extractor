@@ -55,7 +55,7 @@ public class RecipeListUrlCollector {
 			String abshref = link.attr("abs:href");
 			if (this.pattern.matcher(urlText).matches())
 				this.nextUrl = abshref;
-			logger.info(abshref + ";" + urlText);
+			logger.info("Got recipe list link url;" + abshref);
 			recipeListLinks.add(abshref);
 		}
 		return recipeListLinks;

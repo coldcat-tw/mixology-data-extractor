@@ -28,7 +28,7 @@ public class RecipeUrlCollector {
 		Elements links = pageBarElement.select("a");
 		for (Element link : links) {
 			String abshref = link.attr("abs:href");
-			logger.info(abshref);
+			logger.info("Got recipe link url;" + abshref);
 			recipeLinks.add(abshref);
 		}
 		return recipeLinks;
