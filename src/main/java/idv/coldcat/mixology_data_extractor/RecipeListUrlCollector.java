@@ -32,12 +32,12 @@ public class RecipeListUrlCollector {
 	@Named("RECIPE_URI")
 	private String mixologyRecipeUri = null;
 
-	private Pattern pattern;
+	private Pattern hasNextListPattern;
 	private String nextUrl;
 
 	@Inject
 	public RecipeListUrlCollector() {
-		this.pattern = Pattern.compile("後\\d{1,2}頁");
+		this.hasNextListPattern = Pattern.compile("後\\d{1,2}頁");
 		this.nextUrl = null;
 	}
 
@@ -45,6 +45,7 @@ public class RecipeListUrlCollector {
 		if (Strings.isNullOrEmpty(url))
 			url = this.mixologyBaseUrl + this.mixologyRecipeUri;
 
+		this.nextUrl = null;
 		Set<String> recipeListLinks = new LinkedHashSet<>();
 		recipeListLinks.add(url);
 		Document doc = Jsoup.connect(url).userAgent(this.ua).get();
@@ -53,7 +54,7 @@ public class RecipeListUrlCollector {
 		for (Element link : links) {
 			String urlText = link.ownText();
 			String abshref = link.attr("abs:href");
-			if (this.pattern.matcher(urlText).matches())
+			if (this.hasNextListPattern.matcher(urlText).matches())
 				this.nextUrl = abshref;
 			logger.info("Got recipe list link url;" + abshref);
 			recipeListLinks.add(abshref);
