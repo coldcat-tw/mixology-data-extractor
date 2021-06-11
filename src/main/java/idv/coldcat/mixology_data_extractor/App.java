@@ -152,14 +152,14 @@ public class App {
 				String cmdName = commandValues[0];
 				String targetPath = commandValues[1];
 
-				switch (cmdName) {
-				case "get_recipe_list_link":
+				switch (AppCommand.valueOf(cmdName)) {
+				case get_recipe_list_link:
 					app.collectRecipeListLinks(targetPath);
 					break;
-				case "get_recipe_link":
+				case get_recipe_link:
 					app.collectRecipeLinks(targetPath);
 					break;
-				case "get_recipe_data":
+				case get_recipe_data:
 					app.collectRecipeData(targetPath);
 					break;
 				default:
